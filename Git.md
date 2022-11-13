@@ -1,4 +1,4 @@
-![image-20220316220240293](C:\Users\Wh\AppData\Roaming\Typora\typora-user-images\image-20220316220240293.png)
+### 基本操作
 
 更新到缓冲区
 
@@ -21,7 +21,7 @@ git branch
 上传到指定分支
 
 ```
-git push origin master(分支名，可以改成其他分支)
+git push origin master(分支名，根据实际情况写)
 
 git push -f origin master(强制提交覆盖，不推荐)
 ```
@@ -87,9 +87,73 @@ git checkout feature_x
 
 ```bash
 //更改git全局代理
-git config --global https.proxy https://127.0.0.1:7890
+git config --global http.proxy http://127.0.0.1:7890
 
 //取消全局代理设置
-git config --global --unset https.proxy
+git config --global --unset http.proxy
 ```
+
+
+
+### 问题解决
+
+#### git push 出现Everything up-to-date
+
+git push 出现Everything up-to-date，可用如下方法解决
+
+1.创建一个新的分支：
+
+```bash
+git branch newBranch
+```
+
+2.查看分支是否创建成功：
+
+```bash
+git branch
+```
+
+3.切换到此分支：
+
+```bash
+git checkout newBranch
+```
+
+4.把代码直接提到远程的newBranch分支上，如果出现以下提示：
+
+```bash
+The current branch newbranch has no upstream branch.To push the current branch and set the remote as upstream, use...
+```
+
+直接执行
+
+```bash
+git push --set-upstream origin newbranch
+```
+
+就可以啦
+
+5.切换到原来想要提交代码的分支，**把newBranch合并到master分支上：**
+
+```bash
+git merge newBranch
+```
+
+6.**合并之后如果发现有冲突，可git diff查看有冲突的文件**
+
+7.**最后就可以重新提交一下代码了，直接git push就可**
+
+8.newBranch分支别忘了删除哟 ！
+
+```bash
+本地删除：git branch -D newBranch
+远程删除：git push origin --delete newBranch
+远程分支查看是否删除成功：git branch -r
+```
+
+
+
+git clone 或 git push 出现443 Timeout
+
+
 
