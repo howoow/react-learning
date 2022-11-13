@@ -177,4 +177,107 @@ render() {
 
 
 
+
+
 兄弟节点之间如果需要传递信息，目前只能通过放到最近公共祖先中的state中来传递。
+
+也可以使用下面的Redux API来实现
+
+#### Redux
+
+Redux的作用简介：
+
+React兄弟组件之间无法直接通信，必须通过同一层的上级作为中转站。而如果兄弟组件都是最高层的组件，为了能够让它们进行通信，必须在它们外层再套一层组件，这个外层的组件起着保存数据，传递信息的作用，这其实就是Redux所做的事情。
+
+
+
+实现如下：
+
+1.在index.js中定义每个组件的reducer函数（即对state进行更改的函数，每个state绑定一个reducer。）传入两个参数：当前state和action，返回新state。
+
+```jsx
+// 默认的两个参数，state和action
+const f1 = (state = 0, action) => {
+  //通过action.type来判断是否是执行该组件的接口来改变该组件的state
+  switch (action.type) {
+    case 'add':
+      return state + action.value;
+    case 'sub':
+      return state - action.value;
+    default:
+      return state;
+  }
+};
+
+const f2 = (state = ":", action) => {
+  switch (action.type) {
+    case 'concat':
+      return state + action.character;
+    default:
+      return state;
+  }
+};
+```
+
+2.如需创建多个组件接口的父节点，则使用combineReducers()
+
+```jsx
+//f3是根节点的接口
+const f3 = combineReducers({
+  number: f1,
+  string: f2,
+})
+```
+
+3.创建store（维护的所有组件的数据，一般维护成树的结构。）
+
+```jsx
+const store = configureStore({
+  reducer: f3
+});
+```
+
+4.就可以通过store的dispatch函数对整棵state树操作一遍。
+
+```jsx
+store.dispatch({type: "add", value: 1});
+//从根节点开始，便利所有的reducer函数，匹配type才执行
+```
+
+5.Provider组件：用来包裹整个项目，其`store`属性用来存储redux的store对象。
+
+```jsx
+<Provider store={store}>
+    <App />
+</Provider>
+```
+
+6.在各个组件的jsx文件中引入并在`export`部分使用`connect`函数，实现操作其他组件的state
+
+```jsx
+export default connect(mapStateToProps, mapDispatchToProps)(ComponentName);
+```
+
+这里还要定义`mapStateToProps`和`mapDispatchToProps`两个函数，作用如下：
+
+`mapStateToProps`：每次store中的状态更新后调用一次，用来更新组件中的值。
+`mapDispatchToProps`：组件创建时调用一次，用来将store的dispatch函数传入组件。
+
+```jsx
+const mapStateToProps = (state, props) => {
+    return {
+        number: state.number,
+    }
+}
+
+//在number中调用更改兄弟节点string的state
+const mapDispatchToProps = {
+    concat: (c) => {
+        return {
+            type: "concat",
+            character: c,
+        }
+    }
+}
+```
+
