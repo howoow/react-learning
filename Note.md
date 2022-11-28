@@ -26,6 +26,15 @@ import 'bootstrap/dist/css/bootstrap.css'
 npm start
 ```
 
+如果create-react-app很慢，可以通过修改npm的register为国内的网站
+
+```bash
+npm config set registry https://registry.npm.taobao.org
+-- 配置后可通过下面方式来验证是否成功
+npm config get registry
+-- 或npm info express
+```
+
 
 
 
@@ -177,6 +186,56 @@ render() {
 
 
 
+#### 路由
+
+安装Route组件：
+
+```bash
+npm i react-router-dom
+```
+
+以导航栏实现地址跳转为例
+
+1.创建导航栏（从bootstrap上copy一个
+
+2.导入Link
+
+```jsx
+import { Link } from 'react-router-dom';
+```
+
+3.将所有的`<a href=...>`标签改为
+
+```jsx
+// "/"表示根目录
+<Link className="" to="/"></Link>
+```
+
+4.在app.jsx中设置路由
+
+首先引入Routes和Route
+
+```jsx
+import { Routes, Route, Navigate } from 'react-router-dom';
+```
+
+然后按照navBar中to的地址进行设置
+
+```jsx
+<Routes>
+	<Route path='/' element={<Home />}></Route>
+    <Route path='/home' element={<Home />}></Route>
+    <Route path='/calculator' element={<Calculator />}></Route>
+    <Route path='/login' element={<Login />}></Route>
+    <Route path='/register' element={<Register />}></Route>
+    <Route path='/404' element={<NotFound />}></Route>
+    //这里是设置重定向的操作，除上面所有地址外的所有地址都将跳转到/404
+    <Route path='*' element={<Navigate replace to="/404" />}></Route>
+</Routes>
+```
+
+---
+
 
 
 兄弟节点之间如果需要传递信息，目前只能通过放到最近公共祖先中的state中来传递。
@@ -279,5 +338,231 @@ const mapDispatchToProps = {
         }
     }
 }
+```
+
+
+
+#### React计算器实战
+
+##### css设计
+
+`.为了更好的兼容性，所有组件均使用盒子模型
+
+`box-sizing`有两种：`content-box`和`border-box`，第二种就是要用的。
+
+```css
+* {
+  box-sizing: border-box;
+}
+```
+
+设置盒子模型后，设置`border`和`padding`不会改变**元素的宽高**，而是**挤占内容区域**。
+
+`content-box`的宽度和高度是content内容的宽度和高度
+`border-box`的宽度和高度是content的宽度 + `padding` + `border`,当border或内边距增加，content的宽度或高度会减小。
+
+2.计算器使用独特的网格模型，需要设置display和grid的属性
+
+```css
+.calculator {
+    display: grid;
+      grid-template-columns: repeat(4, 6rem);
+      /*repeat是把括号中的内容：重复4遍6rem，也就实现了每行四列*/
+      grid-template-rows: minmax(6rem, auto) repeat(5, 4rem);
+      /*minmax函数把output的高度数据控制在（6rem, auto）之间，剩下五行直接使用repeat解决*/
+      gap: 1px;
+      /*每个格子之间的间隙*/
+}
+```
+
+3.设置计算器的其他属性：宽度、居中、边框
+
+```css
+.calculator {
+    display: grid;
+      grid-template-columns: repeat(4, 6rem);
+      /*repeat是把括号中的内容：重复4遍6rem，也就实现了每行四列*/
+      grid-template-rows: minmax(6rem, auto) repeat(5, 4rem);
+      /*minmax函数把output的高度数据控制在（6rem, auto）之间，剩下五行直接使用repeat解决*/
+      gap: 1px;
+      /*每个格子之间的间隙*/
+    
+      background-color: #EEF4F9;
+      width: calc(24rem + 7px);
+      /*使用calc函数计算出宽度*/
+      margin: 0 auto;
+      /*使计算器在页面中居中*/
+      border: 2px solid black;
+      border-radius: 0.3em;
+    }
+```
+
+4.设置输出框的属性（竖直方向上均匀分布，右对齐，溢出换行等
+
+```css
+.output {
+  grid-column: 1 / span 4;
+  /*从第一个格子开始，独占4个格子*/
+  display: flex;
+  /*使用flex布局使得同一列的数据在空间上分布均匀*/
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-around;
+
+  padding: 10px;
+
+  /*下面是实现了让输入过长的数字换行*/
+  word-wrap: break-word;
+  word-break: break-all;
+    
+  background-color: #F3F3F3;
+}
+```
+
+5.实现每一个格子的鼠标点击、悬浮效果
+
+```css
+.calculator>button {
+  margin: 2px;
+  background-color: #FFFFFF;
+  border-radius: 0.3em;
+}
+
+.calculator>button:hover {
+  background-color: #FBFCFD;
+}
+
+.calculator>button:active {
+  background-color: #F7F9FC;
+}
+```
+
+##### redux配置
+
+在src文件夹中创建redux文件夹专门存放与redux相关的js文件
+
+-|redux
+
+​	-|action.js
+
+​	-|reducer.js
+
+​	-|store.js
+
+actions.js：主要是定义所有操作
+
+```js
+const ACTIONS = {
+    ADD_DIGIT: "add-digit",
+    DELETE_DIGIT: "delete-digit",
+    CHOOSE_OPERATION: "choose-operation",
+    CLEAR: "clear",
+    EVALUATE: "evaluate",
+}
+
+export default ACTIONS;
+```
+
+reducer.js：创建reducer，维护状态和定义操作函数
+
+```js
+import ACTIONS from "./actions";
+
+const reducer = (state = {
+    currentOperand: "",
+    lastOperand: "",
+    operation: "",
+}, action) => {
+    switch (action.type) {
+
+    }
+}
+
+export default reducer;
+```
+
+store.js：创建store，供其他组件调用
+
+```js
+import ACTIONS from "./actions";
+
+const reducer = (state = {
+    currentOperand: "",
+    lastOperand: "",
+    operation: "",
+}, action) => {
+    switch (action.type) {
+
+    }
+}
+
+export default reducer;
+```
+
+##### 登录界面的设计
+
+1.去bootstrap上找一个合适的form表单
+
+2.设置Username和Password 的输入框，在input标签的属性中加入onCharge
+
+```jsx
+<input onChange={e => { this.setState({ username: e.target.value }) }} type="email" className="form-control" id="username" aria-describedby="emailHelp" />
+```
+
+
+
+3.编写提交按钮的handleClick函数
+
+```jsx
+    handleClick = e => {
+        e.preventDefault();
+
+        if (this.state.username === "") {
+            this.setState({ error_message: "用户名不能为空！" });
+        } else if (this.state.password === "") {
+            this.setState({ error_message: "密码不能为空！" });
+        } else if (this.state.password_confirm === "") {
+            this.setState({ error_message: "确认密码不能为空！" });
+        } else if (this.state.password_confirm !== this.state.password) {
+            this.setState({ error_message: "两次输入的密码不一致" });
+        } else {
+            $.ajax({
+                url: "https://app165.acapp.acwing.com.cn/calculator/register/",
+                type: "get",
+                data: {
+                    username: this.state.username,
+                    password: this.state.password,
+                    password_confirm: this.state.password_confirm,
+                },
+                dataType: "json",
+                success: resp => {
+                    if (resp.result === "success") {
+                        window.location.href = "/calculator";
+                    } else {
+                        this.setState({ error_message: resp.result });
+                    }
+
+                }
+            });
+        }
+    }
+
+...
+
+<button onClick={this.handleClick} style={{ width: "100%" }} type="submit" className="btn btn-primary">登录</button>
+
+```
+
+
+
+杂碎：
+
+1.鼠标悬浮到相应标签上显示出小手
+
+CSS加入cursor：”pointer“的样式
+
+```jsx
+<a className="nav-link" style={{ cursor: "pointer" }}>退出</a>
+
 ```
 

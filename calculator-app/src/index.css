@@ -1,0 +1,70 @@
+body {
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.calculator {
+  display: grid;
+  grid-template-columns: repeat(4, 6rem);
+  /*repeat是把括号中的内容：重复4遍6rem，也就实现了每行四列*/
+  grid-template-rows: minmax(6rem, auto) repeat(5, 4rem);
+  /*minmax函数把output的高度数据控制在（6rem, auto）之间，剩下五行直接使用repeat解决*/
+  gap: 1px;
+  /*每个格子之间的间隙*/
+  background-color: #EEF4F9;
+  width: calc(24rem + 7px);
+  /*使用calc函数计算出宽度*/
+  margin: 0 auto;
+  /*使计算器在页面中居中*/
+  border: 2px solid black;
+  border-radius: 0.3em;
+}
+
+.last-output {}
+
+.current-output {
+  font-size: 3rem;
+}
+
+.output {
+  grid-column: 1 / span 4;
+  /*从第一个格子开始，独占4个格子*/
+  display: flex;
+  /*使用flex布局使得同一列的数据在空间上分布均匀*/
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-around;
+
+  padding: 10px;
+
+  /*下面是实现了让输入过长的数字换行*/
+  word-wrap: break-word;
+  word-break: break-all;
+  background-color: #F3F3F3;
+}
+
+.button-equal {
+  grid-column: 3 / span 2;
+}
+
+.button-ac {
+  grid-column: 1 / span 2;
+}
+
+.calculator>button {
+  margin: 2px;
+  background-color: #FFFFFF;
+  border-radius: 0.3em;
+}
+
+
+.calculator>button:hover {
+  background-color: #FBFCFD;
+}
+
+.calculator>button:active {
+  background-color: #F7F9FC;
+}
