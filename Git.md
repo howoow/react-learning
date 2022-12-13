@@ -157,3 +157,8 @@ git clone 或 git push 出现443 Timeout
 
 
 
+#### git push 后子文件夹无法打开
+
+git bash执行 git rm -r --cached "灰色文件夹的名称"
+
+删除本地文件夹隐藏的.git文件重新上传即可
